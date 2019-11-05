@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfScreen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Screen>
+    <Id>1</Id>
+    <InternalName>First Screen</InternalName>
+    <ScreenIntroMessage>Yo! This is the first screen. Whatchu wanna do?</ScreenIntroMessage>
+    <Options>
+      <TextOption>
+        <Id>1</Id>
+        <Text>Go in that dark room.</Text>
+        <Actions>
+          <Action>
+            <Id>1</Id>
+            <Type>DisplayMessage</Type>
+            <Parameter xsi:type="xsd:string">Off we go!</Parameter>
+          </Action>
+          <Action>
+            <Id>2</Id>
+            <Type>ChangeScreen</Type>
+            <Parameter xsi:type="xsd:string">2</Parameter>
+          </Action>
+        </Actions>
+      </TextOption>
+      <TextOption>
+        <Id>2</Id>
+        <Text>Check out that cool murderer you see running at you.</Text>
+        <Actions>
+          <Action>
+            <Id>1</Id>
+            <Type>DisplayMessage</Type>
+            <Parameter xsi:type="xsd:string">You died. What the hell did you think was going to happen?</Parameter>
+          </Action>
+          <Action>
+            <Id>2</Id>
+            <Type>EndGame</Type>
+            <Parameter xsi:type="xsd:string" />
+          </Action>
+        </Actions>
+      </TextOption>
+    </Options>
+  </Screen>
+  <Screen>
+    <Id>2</Id>
+    <InternalName>The Dark Room</InternalName>
+    <ScreenIntroMessage>Wow. You can't see anything. Why didn't you bring a flashlight?</ScreenIntroMessage>
+    <Options>
+      <TextOption>
+        <Id>1</Id>
+        <Text>Welp. Let's go back.</Text>
+        <Actions>
+          <Action>
+            <Id>1</Id>
+            <Type>ChangeScreen</Type>
+            <Parameter xsi:type="xsd:string">1</Parameter>
+          </Action>
+        </Actions>
+      </TextOption>
+    </Options>
+  </Screen>
+</ArrayOfScreen>

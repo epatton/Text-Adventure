@@ -1,0 +1,172 @@
+﻿<Window x:Class="TextAdventureBuilder.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TextAdventureBuilder"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="654" Width="885">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="26" />
+        </Grid.RowDefinitions>
+        <DockPanel Grid.Row="0">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_Options">
+                    <MenuItem Name="btnExportAll" Header="Export _All" Click="BtnExportAll_Click" />
+                    <Separator />
+                    <MenuItem Name="btnExportScreens" Header="Export _Screens" Click="BtnExportScreens_Click" />
+                    <MenuItem Name="btnExportCompanions" Header="Export _Companions" Click="BtnExportCompanions_Click" />
+                    <MenuItem Name="btnExportItems" Header="Export _Items" Click="BtnExportItems_Click" />
+                    <MenuItem Name="btnExportShops" Header="Export _Shops" Click="BtnExportShops_Click" />
+                    <Separator />
+                    <MenuItem Name="btnExit" Header="_Exit" Click="BtnExit_Click" />
+                </MenuItem>
+            </Menu>
+            <TextBox AcceptsReturn="True" />
+        </DockPanel>
+        <TabControl Grid.Row="1">
+            <TabItem Header="Screens">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <ListBox Name="listScreens" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="0" SelectionMode="Single" MouseDoubleClick="BtnLoadScreen_Click"></ListBox>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Margin="0 0 2 0" Grid.Column="0" Name="btnLoadScreen" Click="BtnLoadScreen_Click">Load</Button>
+                            <Button Margin="2 0 2 0" Grid.Column="1" Name="btnNewScreen" Click="BtnNewScreen_Click">New</Button>
+                            <Button Margin="2 0 0 0" Grid.Column="2" Name="btnDeleteScreen" Click="BtnDeleteScreen_Click">Delete</Button>
+                        </Grid>
+                    </Grid>
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <ScrollViewer Grid.Row="0">
+                            <Grid Grid.Row="0" Margin="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="100" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Label Grid.Row="0" HorizontalAlignment="Right">Name:</Label>
+                                <TextBox Name="txtScreenName" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10" LostFocus="SaveScreenEvent" />
+
+                                <Label Grid.Row="1" HorizontalAlignment="Right">Intro:</Label>
+                                <TextBox Name="txtScreenIntro" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" AcceptsReturn="True" LostFocus="SaveScreenEvent" />
+
+                                <Label Grid.Row="2" HorizontalAlignment="Right">Options:</Label>
+                                <Grid Grid.Row="2" Grid.Column="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*" />
+                                        <ColumnDefinition Width="2*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="1*"/>
+                                            <RowDefinition Height="30"/>
+                                        </Grid.RowDefinitions>
+                                        <ListBox Name="listOptions" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="0" SelectionMode="Single" MouseDoubleClick="BtnLoadOption_Click"></ListBox>
+                                        <Grid Grid.Row="1">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="1*"/>
+                                                <ColumnDefinition Width="1*"/>
+                                                <ColumnDefinition Width="1*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Button Margin="0 0 2 0" Grid.Column="0" Name="btnLoadOption" Click="BtnLoadOption_Click">Load</Button>
+                                            <Button Margin="2 0 2 0" Grid.Column="1" Name="btnNewOption" Click="BtnNewOption_Click">New</Button>
+                                            <Button Margin="2 0 0 0" Grid.Column="2" Name="btnDeleteOption" Click="BtnDeleteOption_Click">Delete</Button>
+                                        </Grid>
+                                    </Grid>
+                                    <Grid Grid.Column="1" Margin="10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="100" />
+                                            <RowDefinition Height="35" />
+                                            <RowDefinition Height="35" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <Label Grid.Row="0" HorizontalAlignment="Right">Text:</Label>
+                                        <TextBox Name="txtOptionText" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10" LostFocus="SaveScreenEvent" />
+
+                                        <Label Grid.Row="1" HorizontalAlignment="Right">Condition Type:</Label>
+                                        <ComboBox Name="ddlOptionConditionType" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" SelectionChanged="SaveScreenEvent">
+                                            <ComboBoxItem Tag="-1" Content="None" Selector.IsSelected="True" />
+                                        </ComboBox>
+
+                                        <Label Grid.Row="2" HorizontalAlignment="Right">Condition Value:</Label>
+                                        <TextBox Name="txtOptionConditionValue" Grid.Row="2" Grid.Column="1" Margin="0,0,0,10" LostFocus="SaveScreenEvent" />
+
+                                        <Label Grid.Row="3" HorizontalAlignment="Right">Actions:</Label>
+                                        <Grid Grid.Row="3" Grid.Column="1">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="30"/>
+                                                <RowDefinition Height="30"/>
+                                                <RowDefinition Height="30"/>
+                                                <RowDefinition Height="30"/>
+                                            </Grid.RowDefinitions>
+                                            <ComboBox Grid.Row="0" Margin="0 0 0 4" Name="ddlActions" SelectionChanged="BtnLoadAction_Click"></ComboBox>
+                                            <ComboBox Grid.Row="1" Margin="0 0 0 4" Name="ddlActionTypes" SelectionChanged="SaveScreenEvent"></ComboBox>
+                                            <TextBox Grid.Row="2" Name="txtActionParameter" LostFocus="SaveScreenEvent"/>
+                                            <Grid Grid.Row="3">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="1*"/>
+                                                    <ColumnDefinition Width="1*"/>
+                                                    <ColumnDefinition Width="1*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Button Margin="0 0 2 0" Grid.Column="0" Name="btnLoadAction" Click="BtnLoadAction_Click">Load</Button>
+                                                <Button Margin="2 0 2 0" Grid.Column="1" Name="btnNewAction" Click="BtnNewAction_Click">New</Button>
+                                                <Button Margin="2 0 0 0" Grid.Column="2" Name="btnDeleteAction" Click="BtnDeleteAction_Click">Delete</Button>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </ScrollViewer>
+                        <Button Margin="0 0 10 0" Name="btnSaveScreen" Click="BtnSaveScreen_Click" Width="100" HorizontalAlignment="Right" Grid.Row="1">Save Screen</Button>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Companions">
+                <Label Content="Content goes here..." />
+            </TabItem>
+            <TabItem Header="Items">
+                <Label Content="Content goes here..." />
+            </TabItem>
+            <TabItem Header="Shops">
+                <Label Content="Content goes here..." />
+            </TabItem>
+        </TabControl>
+        <Label 
+            Grid.Row="2" 
+            Name="lblScreenSaveSuccess"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            HorizontalContentAlignment="Center"
+            Background="LimeGreen"
+            Visibility="Collapsed">
+            Successfully saved the screen/option/action!
+        </Label>
+    </Grid>
+</Window>
