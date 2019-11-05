@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -31,9 +32,17 @@ namespace TextAdventureBuilder
         private TextOption _currentOption;
         private TextAdventure.Core.Models.Action _currentAction;
 
+        //Companion Variables
+        private Companion _currentCompanion;
+
+        //Item Variables
+        private Item _currentItem;
+
         //Save Timers
-        DispatcherTimer screenSaveTimer = new DispatcherTimer();
-        int screenSaveCounter = 0;
+        DispatcherTimer saveTimer = new DispatcherTimer();
+        int saveCounter = 0;
+
+        private bool _exportingAll = false;
 
         public MainWindow()
         {
@@ -48,8 +57,8 @@ namespace TextAdventureBuilder
             InitializeConditionTypes();
             InitializeActionTypes();
 
-            screenSaveTimer.Interval = TimeSpan.FromSeconds(0.5);
-            screenSaveTimer.Tick += ScreenSaveTimer_Tick;
+            saveTimer.Interval = TimeSpan.FromSeconds(0.5);
+            saveTimer.Tick += SaveTimer_Tick;
         }
 
         #region Initialization
@@ -82,11 +91,11 @@ namespace TextAdventureBuilder
 
             foreach (var obj in Companions)
             {
-                //listScreens.Items.Add(new ListBoxItem
-                //{
-                //    Name = "Screen" + obj.Id,
-                //    Content = "Screen - " + obj.Id
-                //});
+                listCompanions.Items.Add(new ListBoxItem
+                {
+                    Tag = obj.Id,
+                    Content = "Companion - " + obj.Id
+                });
             }
         }
 
@@ -100,11 +109,11 @@ namespace TextAdventureBuilder
 
             foreach (var obj in Items)
             {
-                //listScreens.Items.Add(new ListBoxItem
-                //{
-                //    Name = "Screen" + obj.Id,
-                //    Content = "Screen - " + obj.Id
-                //});
+                listItems.Items.Add(new ListBoxItem
+                {
+                    Tag = obj.Id,
+                    Content = "Item - " + obj.Id
+                });
             }
         }
 
@@ -158,6 +167,9 @@ namespace TextAdventureBuilder
 
         #endregion
 
+        //----------------------------------------
+        //--SCREENS-------------------------------
+        //----------------------------------------
         #region Screen Clicks
 
         private void BtnLoadScreen_Click(object sender, RoutedEventArgs e)
@@ -548,9 +560,9 @@ namespace TextAdventureBuilder
             if (_currentScreen == null)
                 return;
 
-            lblScreenSaveSuccess.Visibility = Visibility.Collapsed;
-            screenSaveTimer.Stop();
-            screenSaveCounter = 0;
+            lblSaveSuccess.Visibility = Visibility.Collapsed;
+            saveTimer.Stop();
+            saveCounter = 0;
 
             var screen = Screens.Single(x => x.Id == _currentScreen.Id);
             screen.InternalName = txtScreenName.Text;
@@ -593,27 +605,9 @@ namespace TextAdventureBuilder
 
             _currentScreen = screen;
 
-            lblScreenSaveSuccess.Visibility = Visibility.Visible;
-            screenSaveTimer.Start();
+            lblSaveSuccess.Visibility = Visibility.Visible;
+            saveTimer.Start();
         }
-
-        private void ScreenSaveTimer_Tick(object sender, EventArgs e)
-        {
-            if (screenSaveCounter == 2)
-            {
-                lblScreenSaveSuccess.Visibility = Visibility.Collapsed;
-                screenSaveTimer.Stop();
-                screenSaveCounter = 0;
-            }
-            else
-            {
-                screenSaveCounter++;
-            }
-        }
-
-        #endregion
-
-        #region Helpers
 
         private void ClearScreen()
         {
@@ -638,6 +632,317 @@ namespace TextAdventureBuilder
             txtActionParameter.Text = "";
         }
 
+        #endregion
+
+        //----------------------------------------
+        //--COMPANIONS----------------------------
+        //----------------------------------------
+        #region Companion Clicks
+
+        private void BtnLoadCompanion_Click(object sender, RoutedEventArgs e)
+        {
+            LoadCompanion();
+        }
+
+        private void BtnNewCompanion_Click(object sender, RoutedEventArgs e)
+        {
+            NewCompanion();
+        }
+
+        private void BtnDeleteCompanion_Click(object sender, RoutedEventArgs e)
+        {
+            DeleteCompanion();
+        }
+
+        private void BtnSaveCompanions_Click(object sender, RoutedEventArgs e)
+        {
+            SaveCompanions();
+        }
+
+        private void SaveCompanionEvent(object sender, RoutedEventArgs e)
+        {
+            SaveCompanions();
+        }
+
+        #endregion
+
+        #region Companion Logic
+
+        private void LoadCompanion()
+        {
+            if (listCompanions.SelectedItem == null)
+            {
+                _currentCompanion = null;
+                return;
+            }
+
+            ClearCompanion();
+
+            var selectedCompanion = listCompanions.SelectedItem as ListBoxItem;
+            var companionId = Convert.ToInt32(selectedCompanion.Tag);
+            var companion = Companions.Single(x => x.Id == companionId);
+            _currentCompanion = companion;
+
+            txtCompanionName.Text = companion.Name;
+        }
+
+        private void NewCompanion()
+        {
+            var newCompanion = new Companion();
+            newCompanion.Id = 1;
+            if (Companions.Any())
+            {
+                newCompanion.Id = Companions.Max(x => x.Id) + 1;
+            }
+
+            Companions.Add(newCompanion);
+            _currentCompanion = newCompanion;
+            var newCompanionListItem = new ListBoxItem
+            {
+                Tag = newCompanion.Id,
+                Content = "Companion - " + newCompanion.Id
+            };
+
+            listCompanions.Items.Add(newCompanionListItem);
+            foreach (ListBoxItem item in listCompanions.Items)
+            {
+                var tag = (int)item.Tag;
+                if (tag == newCompanion.Id)
+                {
+                    listCompanions.SelectedItem = item;
+                }
+            }
+
+            LoadCompanion();
+            SaveCompanions();
+        }
+
+        private void DeleteCompanion()
+        {
+            if (_currentCompanion == null ||
+                listCompanions.SelectedItem == null ||
+                !Companions.Any())
+                return;
+
+            Companions.RemoveAll(x => x.Id == _currentCompanion.Id);
+            listCompanions.Items.Remove(listCompanions.SelectedItem);
+
+            _currentCompanion = null;
+            ClearCompanion();
+            RenumberCompanions();
+        }
+
+        private void SaveCompanions()
+        {
+            if (_currentCompanion == null)
+                return;
+
+            lblSaveSuccess.Visibility = Visibility.Collapsed;
+            saveTimer.Stop();
+            saveCounter = 0;
+
+            var companion = Companions.Single(x => x.Id == _currentCompanion.Id);
+            companion.Name = txtCompanionName.Text;
+
+            _currentCompanion = companion;
+
+            lblSaveSuccess.Visibility = Visibility.Visible;
+            saveTimer.Start();
+        }
+
+        private void ClearCompanion()
+        {
+            txtCompanionName.Text = "";
+        }
+
+        private void RenumberCompanions()
+        {
+            int companionId = 1;
+            bool refreshCompanions = false;
+            foreach (var companion in Companions.OrderBy(x => x.Id))
+            {
+                if (companion.Id != companionId)
+                    refreshCompanions = true;
+
+                companion.Id = companionId;
+                companionId++;
+            }
+
+            if (refreshCompanions)
+            {
+                listCompanions.Items.Clear();
+                foreach (var obj in Companions)
+                {
+                    listCompanions.Items.Add(new ListBoxItem
+                    {
+                        Tag = obj.Id,
+                        Content = "Companion - " + obj.Id
+                    });
+                }
+            }
+        }
+
+        #endregion
+
+        //----------------------------------------
+        //--SHOPS---------------------------------
+        //----------------------------------------
+        #region Shop Clicks
+        #endregion
+
+        #region Shop Logic
+        #endregion
+
+        //----------------------------------------
+        //--ITEMS---------------------------------
+        //----------------------------------------
+        #region Item Clicks
+
+        private void BtnLoadItem_Click(object sender, RoutedEventArgs e)
+        {
+            LoadItem();
+        }
+
+        private void BtnNewItem_Click(object sender, RoutedEventArgs e)
+        {
+            NewItem();
+        }
+
+        private void BtnDeleteItem_Click(object sender, RoutedEventArgs e)
+        {
+            DeleteItem();
+        }
+
+        private void BtnSaveItems_Click(object sender, RoutedEventArgs e)
+        {
+            SaveItems();
+        }
+
+        private void SaveItemEvent(object sender, RoutedEventArgs e)
+        {
+            SaveItems();
+        }
+
+        #endregion
+
+        #region Item Logic
+
+        private void LoadItem()
+        {
+            if (listItems.SelectedItem == null)
+            {
+                _currentItem = null;
+                return;
+            }
+
+            ClearItem();
+
+            var selectedItem = listItems.SelectedItem as ListBoxItem;
+            var itemId = Convert.ToInt32(selectedItem.Tag);
+            var item = Items.Single(x => x.Id == itemId);
+            _currentItem = item;
+
+            txtItemName.Text = item.Name;
+            txtItemCost.Text = item.Cost.ToString();
+        }
+
+        private void NewItem()
+        {
+            var newItem = new Item();
+            newItem.Id = 1;
+            if (Items.Any())
+            {
+                newItem.Id = Items.Max(x => x.Id) + 1;
+            }
+
+            Items.Add(newItem);
+            _currentItem = newItem;
+            var newItemListItem = new ListBoxItem
+            {
+                Tag = newItem.Id,
+                Content = "Item - " + newItem.Id
+            };
+
+            listItems.Items.Add(newItemListItem);
+            foreach (ListBoxItem item in listItems.Items)
+            {
+                var tag = (int)item.Tag;
+                if (tag == newItem.Id)
+                {
+                    listItems.SelectedItem = item;
+                }
+            }
+
+            LoadItem();
+            SaveItems();
+        }
+
+        private void DeleteItem()
+        {
+            if (_currentItem == null ||
+                listItems.SelectedItem == null ||
+                !Items.Any())
+                return;
+
+            Items.RemoveAll(x => x.Id == _currentItem.Id);
+            listItems.Items.Remove(listItems.SelectedItem);
+
+            _currentItem = null;
+            ClearItem();
+            RenumberItems();
+        }
+
+        private void SaveItems()
+        {
+            if (_currentItem == null)
+                return;
+
+            lblSaveSuccess.Visibility = Visibility.Collapsed;
+            saveTimer.Stop();
+            saveCounter = 0;
+
+            var item = Items.Single(x => x.Id == _currentItem.Id);
+            item.Name = txtItemName.Text;
+            item.Cost = Convert.ToInt32(txtItemCost.Text);
+
+            _currentItem = item;
+
+            lblSaveSuccess.Visibility = Visibility.Visible;
+            saveTimer.Start();
+        }
+
+        private void ClearItem()
+        {
+            txtItemName.Text = "";
+            txtItemCost.Text = "";
+        }
+
+        private void RenumberItems()
+        {
+            int itemId = 1;
+            bool refreshItems = false;
+            foreach (var item in Items.OrderBy(x => x.Id))
+            {
+                if (item.Id != itemId)
+                    refreshItems = true;
+
+                item.Id = itemId;
+                itemId++;
+            }
+
+            if (refreshItems)
+            {
+                listItems.Items.Clear();
+                foreach (var obj in Items)
+                {
+                    listItems.Items.Add(new ListBoxItem
+                    {
+                        Tag = obj.Id,
+                        Content = "Item - " + obj.Id
+                    });
+                }
+            }
+        }
 
         #endregion
 
@@ -645,42 +950,90 @@ namespace TextAdventureBuilder
 
         private void BtnExportAll_Click(object sender, RoutedEventArgs e)
         {
+            _exportingAll = true;
             var saveHandler = new SaveHandler();
             saveHandler.Save(Screens, typeof(List<Screen>), saveHandler.ScreensFile);
             saveHandler.Save(Companions, typeof(List<Companion>), saveHandler.CompanionsFile);
             saveHandler.Save(Items, typeof(List<Item>), saveHandler.ItemsFile);
             saveHandler.Save(Shops, typeof(List<Shop>), saveHandler.ShopsFile);
+            _exportingAll = false;
+            MessageBox.Show("Everything has been exported successfully!");
+            MessageBox.Show("Everything has been exported successfully!\n\nSee Files:\n\n" + 
+                saveHandler.ScreensFile + "\n" +
+                saveHandler.CompanionsFile + "\n" +
+                saveHandler.ItemsFile + "\n" +
+                saveHandler.ShopsFile);
         }
 
         private void BtnExportScreens_Click(object sender, RoutedEventArgs e)
         {
             var saveHandler = new SaveHandler();
             saveHandler.Save(Screens, typeof(List<Screen>), saveHandler.ScreensFile);
+
+            if(!_exportingAll)
+            {
+                MessageBox.Show("Screens have been exported successfully!\n\nSee File:\n\n" + saveHandler.ScreensFile);
+            }
         }
 
         private void BtnExportCompanions_Click(object sender, RoutedEventArgs e)
         {
             var saveHandler = new SaveHandler();
             saveHandler.Save(Companions, typeof(List<Companion>), saveHandler.CompanionsFile);
+
+            if (!_exportingAll)
+            {
+                MessageBox.Show("Companions have been exported successfully!\n\nSee File:\n\n" + saveHandler.CompanionsFile);
+            }
         }
 
         private void BtnExportItems_Click(object sender, RoutedEventArgs e)
         {
             var saveHandler = new SaveHandler();
             saveHandler.Save(Items, typeof(List<Item>), saveHandler.ItemsFile);
+
+            if (!_exportingAll)
+            {
+                MessageBox.Show("Items have been exported successfully!\n\nSee File:\n\n" + saveHandler.ItemsFile);
+            }
         }
 
         private void BtnExportShops_Click(object sender, RoutedEventArgs e)
         {
             var saveHandler = new SaveHandler();
             saveHandler.Save(Shops, typeof(List<Shop>), saveHandler.ShopsFile);
+
+            if (!_exportingAll)
+            {
+                MessageBox.Show("Shops have been exported successfully!\n\nSee File:\n\n" + saveHandler.ShopsFile);
+            }
         }
 
         #endregion
 
+        private void SaveTimer_Tick(object sender, EventArgs e)
+        {
+            if (saveCounter == 2)
+            {
+                lblSaveSuccess.Visibility = Visibility.Collapsed;
+                saveTimer.Stop();
+                saveCounter = 0;
+            }
+            else
+            {
+                saveCounter++;
+            }
+        }
+
         private void BtnExit_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            e.Handled = Regex.IsMatch(e.Text, "[^0-9]+");
         }
     }
 }
