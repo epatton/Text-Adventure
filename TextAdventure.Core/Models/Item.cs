@@ -16,7 +16,15 @@ namespace TextAdventure.Core.Models
         {
             get
             {
-                return Name + ": " + Cost.ToString() + "G";
+                return Id.ToString() + " - " + Name + " " + Cost.ToString() + "G";
+            }
+        }
+
+        public string CombinedNameWithoutCost
+        {
+            get
+            {
+                return Id.ToString() + " - " + Name + " ";
             }
         }
     }

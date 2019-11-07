@@ -16,7 +16,8 @@ namespace TextAdventure.Core.Models
         DisplayMessage = 5,
         AddItem = 6,
         RemoveItem = 7,
-        EndGame = 8
+        EndGame = 8,
+        ShowShop = 9
     }
 
     [Serializable]
@@ -50,6 +51,9 @@ namespace TextAdventure.Core.Models
                     break;
                 case ActionType.RemoveItem:
                     RemoveItem();
+                    break;
+                case ActionType.ShowShop:
+                    ShowShop();
                     break;
                 case ActionType.EndGame:
                     GameManager.Instance.EndGame();
@@ -104,10 +108,20 @@ namespace TextAdventure.Core.Models
         {
             var compId = Convert.ToInt32(Parameter);
             var comp = GameManager.Instance.Player.Companions
-                .Single(x => x.Id == compId);
+                .SingleOrDefault(x => x.Id == compId);
             if (comp != null)
                 GameManager.Instance.Player.Companions.Remove(comp);
         }
 
+        private void ShowShop()
+        {
+            var shopId = Convert.ToInt32(Parameter);
+            var shop = GameManager.Instance.Shops
+                .SingleOrDefault(x => x.Id == shopId);
+            if(shop != null)
+            {
+                shop.ShowStore();
+            }
+        }
     }
 }

@@ -111,9 +111,7 @@
                                         <TextBox Name="txtOptionText" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10" LostFocus="SaveScreenEvent" />
 
                                         <Label Grid.Row="1" HorizontalAlignment="Right">Condition Type:</Label>
-                                        <ComboBox Name="ddlOptionConditionType" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" SelectionChanged="SaveScreenEvent">
-                                            <ComboBoxItem Tag="-1" Content="None" Selector.IsSelected="True" />
-                                        </ComboBox>
+                                        <ComboBox Name="ddlOptionConditionType" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" SelectionChanged="SaveScreenEvent"></ComboBox>
 
                                         <Label Grid.Row="2" HorizontalAlignment="Right">Condition Value:</Label>
                                         <TextBox Name="txtOptionConditionValue" Grid.Row="2" Grid.Column="1" Margin="0,0,0,10" LostFocus="SaveScreenEvent" />
@@ -206,7 +204,7 @@
                             <RowDefinition Height="1*"/>
                             <RowDefinition Height="30"/>
                         </Grid.RowDefinitions>
-                        <ListBox Name="listItems" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="0" SelectionMode="Single" MouseDoubleClick="BtnLoadCompanion_Click"></ListBox>
+                        <ListBox Name="listItems" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="0" SelectionMode="Single" MouseDoubleClick="BtnLoadItem_Click"></ListBox>
                         <Grid Grid.Row="1">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1*"/>
@@ -242,12 +240,80 @@
 
                             </Grid>
                         </ScrollViewer>
-                        <Button Margin="0 0 10 0" Name="btnSaveItems" Click="BtnSaveItems_Click" Width="100" HorizontalAlignment="Right" Grid.Row="1">Save Companion</Button>
+                        <Button Margin="0 0 10 0" Name="btnSaveItems" Click="BtnSaveItems_Click" Width="100" HorizontalAlignment="Right" Grid.Row="1">Save Item</Button>
                     </Grid>
                 </Grid>
             </TabItem>
             <TabItem Header="Shops">
-                <Label Content="Content goes here..." />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <ListBox Name="listShops" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="0" SelectionMode="Single" MouseDoubleClick="BtnLoadShop_Click"></ListBox>
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Margin="0 0 2 0" Grid.Column="0" Name="btnLoadShop" Click="BtnLoadShop_Click">Load</Button>
+                            <Button Margin="2 0 2 0" Grid.Column="1" Name="btnNewShop" Click="BtnNewShop_Click">New</Button>
+                            <Button Margin="2 0 0 0" Grid.Column="2" Name="btnDeleteShop" Click="BtnDeleteShop_Click">Delete</Button>
+                        </Grid>
+                    </Grid>
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*"/>
+                            <RowDefinition Height="30"/>
+                        </Grid.RowDefinitions>
+                        <ScrollViewer Grid.Row="0">
+                            <Grid Grid.Row="0" Margin="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="35" />
+                                    <RowDefinition Height="100" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <Label Grid.Row="0" HorizontalAlignment="Right">Name:</Label>
+                                <TextBox Name="txtShopName" Grid.Row="0" Grid.Column="1" Margin="0,0,0,10" LostFocus="SaveShopEvent" />
+
+                                <Label Grid.Row="1" HorizontalAlignment="Right">Message:</Label>
+                                <TextBox Name="txtWelcomeMessage" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" LostFocus="SaveShopEvent" AcceptsReturn="True"/>
+
+                                <Grid Grid.Row="2" Grid.Column="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="60" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="35" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+                                    <Label Grid.Column="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">Available Items</Label>
+                                    <Label Grid.Column="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">Store Items</Label>
+                                    <ListBox Grid.Row="1" Grid.Column="0" Name="listAvailableItems" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" SelectionMode="Multiple" MouseDoubleClick="BtnLoadCompanion_Click"></ListBox>
+                                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="5" VerticalAlignment="Center">
+                                        <Button Margin="0 5" Height="35" Click="BtnAddItemToShop_Click">Add</Button>
+                                        <Button Height="35" Click="BtnRemoveItemFromShop_Click">Remove</Button>
+                                    </StackPanel>
+                                    <ListBox Grid.Row="1" Grid.Column="2" Name="listShopItems" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" SelectionMode="Multiple" MouseDoubleClick="BtnLoadCompanion_Click"></ListBox>
+                                </Grid>
+
+                            </Grid>
+                        </ScrollViewer>
+                        <Button Margin="0 0 10 0" Name="btnSaveShops" Click="BtnSaveShops_Click" Width="100" HorizontalAlignment="Right" Grid.Row="1">Save Shop</Button>
+                    </Grid>
+                </Grid>
             </TabItem>
         </TabControl>
         <Label 

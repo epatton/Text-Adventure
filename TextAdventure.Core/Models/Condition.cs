@@ -9,6 +9,7 @@ namespace TextAdventure.Core.Models
     [Serializable]
     public enum ConditionType
     {
+        None = 0,
         HasItem = 1,
         HasCompanion = 2,
         HasGold = 3
@@ -25,16 +26,18 @@ namespace TextAdventure.Core.Models
             switch(Type)
             {
                 case ConditionType.HasItem:
-                    var itemId = (int)Parameter;
+                    var itemId = Convert.ToInt32(Parameter);
                     return GameManager.Instance.Player.Backpack
                         .Any(x => x.Id == itemId);
                 case ConditionType.HasGold:
-                    var goldNeeded = (int)Parameter;
+                    var goldNeeded = Convert.ToInt32(Parameter);
                     return GameManager.Instance.Player.Gold >= goldNeeded;
                 case ConditionType.HasCompanion:
-                    var companionId = (int)Parameter;
+                    var companionId = Convert.ToInt32(Parameter);
                     return GameManager.Instance.Player.Companions
                         .Any(x => x.Id == companionId);
+                case ConditionType.None:
+                    return true;
                 default:
                     return false;
             }

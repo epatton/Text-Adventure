@@ -102,15 +102,15 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Resource Include="Data\Companions.xml">
+    <Content Include="Data\Companions.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Data\Shops.xml">
+    </Content>
+    <Content Include="Data\Shops.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Data\Items.xml">
+    </Content>
+    <Content Include="Data\Items.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    </Content>
     <Content Include="Data\Screens.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

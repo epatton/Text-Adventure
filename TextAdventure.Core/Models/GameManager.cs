@@ -15,8 +15,8 @@ namespace TextAdventure.Core.Models
         public Player Player { get; } = new Player();
         public List<Screen> Screens { get; set; } = new List<Screen>();
         public List<Companion> Companions { get; set; } = new List<Companion>();
-        public List<Item> Items { get; set; }
-        public List<Shop> Shops { get; set; }
+        public List<Item> Items { get; set; } = new List<Item>();
+        public List<Shop> Shops { get; set; } = new List<Shop>();
 
         public GameManager()
         {
@@ -28,6 +28,16 @@ namespace TextAdventure.Core.Models
             var saveHandler = new SaveHandler();
             Screens = (List<Screen>)saveHandler
                 .Load(typeof(List<Screen>), saveHandler.ScreensFile);
+
+            Companions = (List<Companion>)saveHandler
+                .Load(typeof(List<Companion>), saveHandler.CompanionsFile);
+
+            Items = (List<Item>)saveHandler
+                .Load(typeof(List<Item>), saveHandler.ItemsFile);
+
+            Shops = (List<Shop>)saveHandler
+                .Load(typeof(List<Shop>), saveHandler.ShopsFile);
+
             LoadScreen(Screens.First().Id);
         }
 

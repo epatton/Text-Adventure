@@ -12,6 +12,6 @@ namespace TextAdventure.Core.Models
         public int Id { get; set; }
         public string Text { get; set; }
         public List<Action> Actions { get; set; } = new List<Action>();
-        public Condition ShowCondition { get; set; }
+        public Condition ShowCondition { get; set; } = new Condition();
     }
 }

@@ -31,12 +31,16 @@ namespace TextAdventureBuilder
         private Screen _currentScreen;
         private TextOption _currentOption;
         private TextAdventure.Core.Models.Action _currentAction;
+        private bool _loadingScreen = false;
 
         //Companion Variables
         private Companion _currentCompanion;
 
         //Item Variables
         private Item _currentItem;
+
+        //Shop Variables
+        private Shop _currentShop;
 
         //Save Timers
         DispatcherTimer saveTimer = new DispatcherTimer();
@@ -73,10 +77,14 @@ namespace TextAdventureBuilder
 
             foreach (var obj in Screens)
             {
+                var name = string.IsNullOrEmpty(obj.InternalName) ?
+                    " - Screen" :
+                    " - " + obj.InternalName;
+
                 listScreens.Items.Add(new ListBoxItem
                 {
                     Tag = obj.Id,
-                    Content = "Screen - " + obj.Id
+                    Content = obj.Id + name
                 });
             }
         }
@@ -91,10 +99,14 @@ namespace TextAdventureBuilder
 
             foreach (var obj in Companions)
             {
+                var name = string.IsNullOrEmpty(obj.Name) ?
+                        " - Companion" :
+                        " - " + obj.Name;
+
                 listCompanions.Items.Add(new ListBoxItem
                 {
                     Tag = obj.Id,
-                    Content = "Companion - " + obj.Id
+                    Content = obj.Id + name
                 });
             }
         }
@@ -109,10 +121,20 @@ namespace TextAdventureBuilder
 
             foreach (var obj in Items)
             {
+                var name = string.IsNullOrEmpty(obj.Name) ?
+                        " - Item" :
+                        " - " + obj.Name;
+
                 listItems.Items.Add(new ListBoxItem
                 {
                     Tag = obj.Id,
-                    Content = "Item - " + obj.Id
+                    Content = obj.Id + name
+                });
+
+                listAvailableItems.Items.Add(new ListBoxItem
+                {
+                    Tag = obj.Id,
+                    Content = obj.Id + name
                 });
             }
         }
@@ -127,11 +149,15 @@ namespace TextAdventureBuilder
 
             foreach (var obj in Shops)
             {
-                //listScreens.Items.Add(new ListBoxItem
-                //{
-                //    Name = "Screen" + obj.Id,
-                //    Content = "Screen - " + obj.Id
-                //});
+                var name = string.IsNullOrEmpty(obj.ShopName) ?
+                        " - Shop" :
+                        " - " + obj.ShopName;
+
+                listShops.Items.Add(new ListBoxItem
+                {
+                    Tag = obj.Id,
+                    Content = obj.Id + name
+                });
             }
         }
 
@@ -304,10 +330,14 @@ namespace TextAdventureBuilder
                 listScreens.Items.Clear();
                 foreach (var obj in Screens)
                 {
+                    var name = string.IsNullOrEmpty(obj.InternalName) ?
+                    " - Screen" :
+                    " - " + obj.InternalName;
+
                     listScreens.Items.Add(new ListBoxItem
                     {
                         Tag = obj.Id,
-                        Content = "Screen - " + obj.Id
+                        Content = obj.Id + name
                     });
                 }
             }
@@ -345,6 +375,7 @@ namespace TextAdventureBuilder
                 return;
             }
 
+            _loadingScreen = true;
             ClearScreen();
 
             var selectedScreen = listScreens.SelectedItem as ListBoxItem;
@@ -371,6 +402,8 @@ namespace TextAdventureBuilder
                 listOptions.SelectedItem = listOptions.Items[0];
                 LoadSelectedOption();
             }
+
+            _loadingScreen = false;
         }
 
         private void LoadSelectedOption()
@@ -381,6 +414,7 @@ namespace TextAdventureBuilder
                 return;
             }
 
+            _loadingScreen = true;
             ClearOption();
 
             var selectedOption = listOptions.SelectedItem as ListBoxItem;
@@ -427,6 +461,8 @@ namespace TextAdventureBuilder
                 ddlActions.SelectedItem = ddlActions.Items[0];
                 LoadSelectedAction();
             }
+
+            _loadingScreen = false;
         }
 
         private void LoadSelectedAction()
@@ -436,7 +472,7 @@ namespace TextAdventureBuilder
                 _currentAction = null;
                 return;
             }
-
+            _loadingScreen = true;
             ClearAction();
 
             var selectedAction = ddlActions.SelectedItem as ComboBoxItem;
@@ -454,6 +490,7 @@ namespace TextAdventureBuilder
                     .First();
             }
             txtActionParameter.Text = Convert.ToString(action.Parameter);
+            _loadingScreen = false;
         }
 
         private void NewScreen()
@@ -470,7 +507,7 @@ namespace TextAdventureBuilder
             var newScreenListItem = new ListBoxItem
             {
                 Tag = newScreen.Id,
-                Content = "Screen - " + newScreen.Id
+                Content = newScreen.Id + " - Screen"
             };
 
             listScreens.Items.Add(newScreenListItem);
@@ -498,6 +535,8 @@ namespace TextAdventureBuilder
             {
                 newOption.Id = _currentScreen.Options.Max(x => x.Id) + 1;
             }
+            newOption.ShowCondition.Type = ConditionType.None;
+            ddlOptionConditionType.SelectedItem = ddlOptionConditionType.Items[0];
 
             _currentScreen.Options.Add(newOption);
             _currentOption = newOption;
@@ -557,7 +596,7 @@ namespace TextAdventureBuilder
 
         private void SaveScreen()
         {
-            if (_currentScreen == null)
+            if (_currentScreen == null || _loadingScreen)
                 return;
 
             lblSaveSuccess.Visibility = Visibility.Collapsed;
@@ -585,8 +624,8 @@ namespace TextAdventureBuilder
 
                 if (_currentAction != null)
                 {
-                    var action = _currentOption.Actions.Single(x => x.Id == _currentAction.Id);
-                    if (ddlActionTypes.SelectedItem != null)
+                    var action = _currentOption.Actions.SingleOrDefault(x => x.Id == _currentAction.Id);
+                    if (ddlActionTypes.SelectedItem != null && action != null)
                     {
                         var selectedActionType = ddlActionTypes.SelectedItem as ComboBoxItem;
                         var typeId = Convert.ToInt32(selectedActionType.Tag);
@@ -607,6 +646,7 @@ namespace TextAdventureBuilder
 
             lblSaveSuccess.Visibility = Visibility.Visible;
             saveTimer.Start();
+            UpdateNames();
         }
 
         private void ClearScreen()
@@ -700,7 +740,7 @@ namespace TextAdventureBuilder
             var newCompanionListItem = new ListBoxItem
             {
                 Tag = newCompanion.Id,
-                Content = "Companion - " + newCompanion.Id
+                Content = newCompanion.Id + " - Companion"
             };
 
             listCompanions.Items.Add(newCompanionListItem);
@@ -748,6 +788,7 @@ namespace TextAdventureBuilder
 
             lblSaveSuccess.Visibility = Visibility.Visible;
             saveTimer.Start();
+            UpdateNames();
         }
 
         private void ClearCompanion()
@@ -773,10 +814,14 @@ namespace TextAdventureBuilder
                 listCompanions.Items.Clear();
                 foreach (var obj in Companions)
                 {
+                    var name = string.IsNullOrEmpty(obj.Name) ?
+                    " - Companion" :
+                    " - " + obj.Name;
+
                     listCompanions.Items.Add(new ListBoxItem
                     {
                         Tag = obj.Id,
-                        Content = "Companion - " + obj.Id
+                        Content = obj.Id + name
                     });
                 }
             }
@@ -788,9 +833,230 @@ namespace TextAdventureBuilder
         //--SHOPS---------------------------------
         //----------------------------------------
         #region Shop Clicks
+
+        private void BtnLoadShop_Click(object sender, RoutedEventArgs e)
+        {
+            LoadShop();
+        }
+
+        private void BtnNewShop_Click(object sender, RoutedEventArgs e)
+        {
+            NewShop();
+        }
+
+        private void BtnDeleteShop_Click(object sender, RoutedEventArgs e)
+        {
+            DeleteShop();
+        }
+
+        private void BtnSaveShops_Click(object sender, RoutedEventArgs e)
+        {
+            SaveShops();
+        }
+
+        private void SaveShopEvent(object sender, RoutedEventArgs e)
+        {
+            SaveShops();
+        }
+
+        private void BtnAddItemToShop_Click(object sender, RoutedEventArgs e)
+        {
+            AddItemToShop();
+            SaveShops();
+        }
+
+        private void BtnRemoveItemFromShop_Click(object sender, RoutedEventArgs e)
+        {
+            RemoveItemFromShop();
+            SaveShops();
+        }
+
         #endregion
 
         #region Shop Logic
+
+        private void LoadShop()
+        {
+            if (listShops.SelectedItem == null)
+            {
+                _currentShop = null;
+                return;
+            }
+
+            ClearShop();
+
+            var selectedShop = listShops.SelectedItem as ListBoxItem;
+            var shopId = Convert.ToInt32(selectedShop.Tag);
+            var shop = Shops.Single(x => x.Id == shopId);
+            _currentShop = shop;
+
+            foreach(var item in shop.Items)
+            {
+                var name = string.IsNullOrEmpty(item.Name) ?
+                        " - Item" :
+                        " - " + item.Name;
+
+                listShopItems.Items.Add(new ListBoxItem
+                {
+                    Tag = item.Id,
+                    Content = item.Id + name
+                });
+            }
+
+            txtShopName.Text = shop.ShopName;
+            txtWelcomeMessage.Text = shop.WelcomeMessage;
+        }
+
+        private void NewShop()
+        {
+            var newShop = new Shop();
+            newShop.Id = 1;
+            if (Shops.Any())
+            {
+                newShop.Id = Shops.Max(x => x.Id) + 1;
+            }
+
+            Shops.Add(newShop);
+            _currentShop = newShop;
+            var newShopListItem = new ListBoxItem
+            {
+                Tag = newShop.Id,
+                Content = newShop.Id + " - Shop"
+            };
+
+            listShops.Items.Add(newShopListItem);
+            foreach (ListBoxItem item in listShops.Items)
+            {
+                var tag = (int)item.Tag;
+                if (tag == newShop.Id)
+                {
+                    listShops.SelectedItem = item;
+                }
+            }
+
+            LoadShop();
+            SaveShops();
+        }
+
+        private void DeleteShop()
+        {
+            if (_currentShop == null ||
+                listShops.SelectedItem == null ||
+                !Shops.Any())
+                return;
+
+            Shops.RemoveAll(x => x.Id == _currentShop.Id);
+            listShops.Items.Remove(listShops.SelectedItem);
+
+            _currentShop = null;
+            ClearShop();
+            RenumberShops();
+        }
+
+        private void SaveShops()
+        {
+            if (_currentShop == null)
+                return;
+
+            lblSaveSuccess.Visibility = Visibility.Collapsed;
+            saveTimer.Stop();
+            saveCounter = 0;
+
+            var shop = Shops.Single(x => x.Id == _currentShop.Id);
+            shop.ShopName = txtShopName.Text;
+            shop.WelcomeMessage = txtWelcomeMessage.Text;
+            shop.Items = new List<Item>();
+            foreach(ListBoxItem obj in listShopItems.Items)
+            {
+                var itemId = (int)obj.Tag;
+                var item = Items.SingleOrDefault(x => x.Id == itemId);
+                if(item != null)
+                {
+                    shop.Items.Add(item);
+                }
+            }
+
+            _currentShop = shop;
+
+            lblSaveSuccess.Visibility = Visibility.Visible;
+            saveTimer.Start();
+            UpdateNames();
+        }
+
+        private void ClearShop()
+        {
+            txtShopName.Text = "";
+            txtWelcomeMessage.Text = "";
+            listShopItems.Items.Clear();
+        }
+
+        private void RenumberShops()
+        {
+            int shopId = 1;
+            bool refreshShops = false;
+            foreach (var shop in Shops.OrderBy(x => x.Id))
+            {
+                if (shop.Id != shopId)
+                    refreshShops = true;
+
+                shop.Id = shopId;
+                shopId++;
+            }
+
+            if (refreshShops)
+            {
+                listShops.Items.Clear();
+                foreach (var obj in Shops)
+                {
+                    var name = string.IsNullOrEmpty(obj.ShopName) ?
+                        " - Shop" :
+                        " - " + obj.ShopName;
+
+                    listShops.Items.Add(new ListBoxItem
+                    {
+                        Tag = obj.Id,
+                        Content = obj.Id + name
+                    });
+                }
+            }
+        }
+
+        private void AddItemToShop()
+        {
+            if (_currentShop == null)
+                return;
+
+            foreach(ListBoxItem item in listAvailableItems.SelectedItems)
+            {
+                listShopItems.Items.Add(new ListBoxItem
+                {
+                    Tag = item.Tag,
+                    Content = item.Content
+                });
+            }
+
+            listAvailableItems.UnselectAll();
+        }
+
+        private void RemoveItemFromShop()
+        {
+            if (_currentShop == null)
+                return;
+
+            var itemsToRemove = new List<ListBoxItem>();
+            foreach (ListBoxItem item in listShopItems.SelectedItems)
+            {
+                itemsToRemove.Add(item);
+            }
+
+            foreach(var item in itemsToRemove)
+            {
+                listShopItems.Items.Remove(item);
+            }
+
+            listShopItems.UnselectAll();
+        }
+
         #endregion
 
         //----------------------------------------
@@ -860,10 +1126,17 @@ namespace TextAdventureBuilder
             var newItemListItem = new ListBoxItem
             {
                 Tag = newItem.Id,
-                Content = "Item - " + newItem.Id
+                Content = newItem.Id + " - Item"
+            };
+
+            var newAvailableItemListItem = new ListBoxItem
+            {
+                Tag = newItem.Id,
+                Content = newItem.Id + " - Item"
             };
 
             listItems.Items.Add(newItemListItem);
+            listAvailableItems.Items.Add(newAvailableItemListItem);
             foreach (ListBoxItem item in listItems.Items)
             {
                 var tag = (int)item.Tag;
@@ -887,6 +1160,19 @@ namespace TextAdventureBuilder
             Items.RemoveAll(x => x.Id == _currentItem.Id);
             listItems.Items.Remove(listItems.SelectedItem);
 
+            ListBoxItem availableItemToRemove = null;
+            foreach (ListBoxItem item in listAvailableItems.Items)
+            {
+                var itemId = (int)item.Tag;
+                if (itemId == _currentItem.Id)
+                    availableItemToRemove = item;
+            }
+
+            if (availableItemToRemove != null)
+            {
+                listAvailableItems.Items.Remove(availableItemToRemove);
+            }
+
             _currentItem = null;
             ClearItem();
             RenumberItems();
@@ -909,6 +1195,7 @@ namespace TextAdventureBuilder
 
             lblSaveSuccess.Visibility = Visibility.Visible;
             saveTimer.Start();
+            UpdateNames();
         }
 
         private void ClearItem()
@@ -933,12 +1220,24 @@ namespace TextAdventureBuilder
             if (refreshItems)
             {
                 listItems.Items.Clear();
+                listAvailableItems.Items.Clear();
+
                 foreach (var obj in Items)
                 {
+                    var name = string.IsNullOrEmpty(obj.Name) ?
+                            " - Item" :
+                            " - " + obj.Name;
+
                     listItems.Items.Add(new ListBoxItem
                     {
                         Tag = obj.Id,
-                        Content = "Item - " + obj.Id
+                        Content = obj.Id + name
+                    });
+
+                    listAvailableItems.Items.Add(new ListBoxItem
+                    {
+                        Tag = obj.Id,
+                        Content = obj.Id + name
                     });
                 }
             }
@@ -957,8 +1256,7 @@ namespace TextAdventureBuilder
             saveHandler.Save(Items, typeof(List<Item>), saveHandler.ItemsFile);
             saveHandler.Save(Shops, typeof(List<Shop>), saveHandler.ShopsFile);
             _exportingAll = false;
-            MessageBox.Show("Everything has been exported successfully!");
-            MessageBox.Show("Everything has been exported successfully!\n\nSee Files:\n\n" + 
+            MessageBox.Show("Everything has been exported successfully!\n\nSee Files:\n\n" +
                 saveHandler.ScreensFile + "\n" +
                 saveHandler.CompanionsFile + "\n" +
                 saveHandler.ItemsFile + "\n" +
@@ -970,7 +1268,7 @@ namespace TextAdventureBuilder
             var saveHandler = new SaveHandler();
             saveHandler.Save(Screens, typeof(List<Screen>), saveHandler.ScreensFile);
 
-            if(!_exportingAll)
+            if (!_exportingAll)
             {
                 MessageBox.Show("Screens have been exported successfully!\n\nSee File:\n\n" + saveHandler.ScreensFile);
             }
@@ -1034,6 +1332,105 @@ namespace TextAdventureBuilder
         {
             var textBox = sender as TextBox;
             e.Handled = Regex.IsMatch(e.Text, "[^0-9]+");
+        }
+
+        private void UpdateNames()
+        {
+            // Screens
+            foreach (ListBoxItem obj in listScreens.Items)
+            {
+                var screenId = Convert.ToInt32(obj.Tag);
+                var screen = Screens.SingleOrDefault(x => x.Id == screenId);
+
+                if (screen != null)
+                {
+                    var name = string.IsNullOrEmpty(screen.InternalName) ?
+                        " - Screen" :
+                        " - " + screen.InternalName;
+
+                    obj.Content = screen.Id + name;
+                }
+            }
+
+            // Companions
+            foreach (ListBoxItem obj in listCompanions.Items)
+            {
+                var companionId = Convert.ToInt32(obj.Tag);
+                var companion = Companions.SingleOrDefault(x => x.Id == companionId);
+
+                if (companion != null)
+                {
+                    var name = string.IsNullOrEmpty(companion.Name) ?
+                        " - Companion" :
+                        " - " + companion.Name;
+
+                    obj.Content = companion.Id + name;
+                }
+            }
+
+            // Items
+            foreach (ListBoxItem obj in listItems.Items)
+            {
+                var itemId = Convert.ToInt32(obj.Tag);
+                var item = Items.SingleOrDefault(x => x.Id == itemId);
+
+                if (item != null)
+                {
+                    var name = string.IsNullOrEmpty(item.Name) ?
+                        " - Item" :
+                        " - " + item.Name;
+
+                    obj.Content = item.Id + name;
+                }
+            }
+
+            // Available Items
+            foreach (ListBoxItem obj in listAvailableItems.Items)
+            {
+                var itemId = Convert.ToInt32(obj.Tag);
+                var item = Items.SingleOrDefault(x => x.Id == itemId);
+
+                if (item != null)
+                {
+                    var name = string.IsNullOrEmpty(item.Name) ?
+                        " - Item" :
+                        " - " + item.Name;
+
+                    obj.Content = item.Id + name;
+                }
+            }
+
+            // Shop Items
+            foreach (ListBoxItem obj in listShopItems.Items)
+            {
+                var itemId = Convert.ToInt32(obj.Tag);
+                var item = Items.SingleOrDefault(x => x.Id == itemId);
+
+                if (item != null)
+                {
+                    var name = string.IsNullOrEmpty(item.Name) ?
+                        " - Item" :
+                        " - " + item.Name;
+
+                    obj.Content = item.Id + name;
+                }
+            }
+
+            // Shops
+            foreach (ListBoxItem obj in listShops.Items)
+            {
+                var itemId = Convert.ToInt32(obj.Tag);
+                var item = Shops.SingleOrDefault(x => x.Id == itemId);
+
+                if (item != null)
+                {
+                    var name = string.IsNullOrEmpty(item.ShopName) ?
+                        " - Shop" :
+                        " - " + item.ShopName;
+
+                    obj.Content = item.Id + name;
+                }
+            }
         }
     }
 }

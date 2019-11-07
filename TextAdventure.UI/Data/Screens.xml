@@ -20,6 +20,9 @@
             <Parameter xsi:type="xsd:string">2</Parameter>
           </Action>
         </Actions>
+        <ShowCondition>
+          <Type>None</Type>
+        </ShowCondition>
       </TextOption>
       <TextOption>
         <Id>2</Id>
@@ -36,6 +39,9 @@
             <Parameter xsi:type="xsd:string" />
           </Action>
         </Actions>
+        <ShowCondition>
+          <Type>None</Type>
+        </ShowCondition>
       </TextOption>
     </Options>
   </Screen>
@@ -54,6 +60,24 @@
             <Parameter xsi:type="xsd:string">1</Parameter>
           </Action>
         </Actions>
+        <ShowCondition>
+          <Type>None</Type>
+        </ShowCondition>
+      </TextOption>
+      <TextOption>
+        <Id>2</Id>
+        <Text>Whoa.. There's a tiny shop over there. Go check it out!</Text>
+        <Actions>
+          <Action>
+            <Id>1</Id>
+            <Type>ShowShop</Type>
+            <Parameter xsi:type="xsd:string">1</Parameter>
+          </Action>
+        </Actions>
+        <ShowCondition>
+          <Type>HasGold</Type>
+          <Parameter xsi:type="xsd:string">1</Parameter>
+        </ShowCondition>
       </TextOption>
     </Options>
   </Screen>
